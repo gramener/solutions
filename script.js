@@ -15,8 +15,8 @@ let originalData = [];
 
 const card = (demo, index) => {
   // Skip private demos when hide-private is active
-  if (demo.Private && document.body.classList.contains('hide-private')) {
-    return '';
+  if (demo.Private && document.body.classList.contains("hide-private")) {
+    return "";
   }
 
   const formattedDate = demo.Date
@@ -27,48 +27,25 @@ const card = (demo, index) => {
       })
     : "";
 
-  return html`
-    <div class="card ${demo.Private ? 'private-demo' : ''}" data-demo-id="${index}" role="button">
-      <div class="card-body">
-        <h5 class="card-title">
-          <small class="text-muted">#${index + 1}</small>
-          ${demo.Featured ? html`<i class="me-1 bi bi-star-fill text-warning"></i>` : ""}
-          ${demo.Video ? html`<i class="me-1 bi bi-youtube text-danger"></i>` : ""}
-          ${demo.Project}
-        </h5>
-        <p class="card-text">${demo.Description}</p>
-        <div class="mt-2">
-          ${demo.Type === "Demo" ? html`<span class="badge bg-info">${demo.Type}</span>` : ""}
-          ${demo.Solution ? html`<span class="badge bg-warning">${demo.Solution}</span>` : ""}
-          ${demo.Industry ? html`<span class="badge bg-primary">${demo.Industry}</span>` : ""}
-          ${demo.Function ? html`<span class="badge bg-success">${demo.Function}</span>` : ""}
-          ${demo.Tech ? html`<span class="badge bg-secondary">${demo.Tech}</span>` : ""}
-        </div>
-        <div class="mt-2">
-          ${formattedDate ? html`<span class="text-secondary small">${formattedDate}</span>` : ""}
-        </div>
+  return html` <div class="card ${demo.Private ? "private-demo" : ""}" data-demo-id="${index}" role="button">
+    <div class="card-body">
+      <h5 class="card-title">
+        <small class="text-muted">#${index + 1}</small>
+        ${demo.Featured ? html`<i class="me-1 bi bi-star-fill text-warning"></i>` : ""}
+        ${demo.Video ? html`<i class="me-1 bi bi-youtube text-danger"></i>` : ""} ${demo.Project}
+      </h5>
+      <p class="card-text">${demo.Description}</p>
+      <div class="mt-2">
+        ${demo.Type === "Demo" ? html`<span class="badge bg-info">${demo.Type}</span>` : ""}
+        ${demo.Solution ? html`<span class="badge bg-warning">${demo.Solution}</span>` : ""}
+        ${demo.Industry ? html`<span class="badge bg-primary">${demo.Industry}</span>` : ""}
+        ${demo.Function ? html`<span class="badge bg-success">${demo.Function}</span>` : ""}
+        ${demo.Tech ? html`<span class="badge bg-secondary">${demo.Tech}</span>` : ""}
       </div>
-    </div>`;
+      <div class="mt-2">${formattedDate ? html`<span class="text-secondary small">${formattedDate}</span>` : ""}</div>
+    </div>
+  </div>`;
 };
-
-async function fetchData() {
-  try {
-    const response = await fetch("demo.json");
-    originalData = await response.json();  // Store in originalData
-    data = [...originalData];  // Create a copy for working data
-
-    // Determine Type based on Link and Video properties
-    data = data.map(demo => ({
-      ...demo,
-      Type: determineType(demo)
-    }));
-    originalData = [...data];  // Update originalData with Types
-
-    redraw(data);
-  } catch (error) {
-    console.error("Error fetching data:", error);
-  }
-}
 
 // Helper function to determine the Type
 function determineType(demo) {
@@ -262,16 +239,16 @@ document.querySelectorAll(".sort").forEach((sortOption) => {
     const sortConfig = JSON.parse(sortOption.dataset.sort);
 
     // Always start with a fresh copy of the original data
-    data = [...originalData];  // Reset data to original state
-    let filteredData = [...data];  // Create working copy
+    data = [...originalData]; // Reset data to original state
+    let filteredData = [...data]; // Create working copy
 
     // Handle special cases for filtering
     if (sortOption.dataset.sort.includes("Video")) {
-      filteredData = data.filter(item => item.Video);  // Only show items with videos
+      filteredData = data.filter((item) => item.Video); // Only show items with videos
     } else if (sortOption.dataset.sort.includes("Featured")) {
-      filteredData = data.filter(item => item.Featured);  // Only show featured items
+      filteredData = data.filter((item) => item.Featured); // Only show featured items
     } else if (sortOption.dataset.sort.includes("Date")) {
-      filteredData = data.filter(item => item.Date);  // Only show items with dates
+      filteredData = data.filter((item) => item.Date); // Only show items with dates
     }
 
     // Then sort the filtered data
@@ -305,12 +282,12 @@ document.querySelector("#ai-chat").addEventListener("submit", async (e) => {
   const $chatOutput = document.querySelector("#chat-output");
   const $input = document.querySelector("#chat-input");
   const loading = html`<div class="spinner-border text-primary mx-auto my-3 d-block loading" role="status"></div>`;
-  $chatOutput.classList.add('active');
+  $chatOutput.classList.add("active");
   try {
     // Get all demos from the original data
     const solutionsList = originalData
-      .filter(demo => demo.Description && demo.Type === "Demo")
-      .map(demo => `- ${demo.Project}: ${demo.Description.replace(/\n/g, " ")}`);
+      .filter((demo) => demo.Description && demo.Type === "Demo")
+      .map((demo) => `- ${demo.Project}: ${demo.Description.replace(/\n/g, " ")}`);
 
     if (solutionsList.length === 0) {
       render(html`<div class="alert alert-warning">No demos available to process.</div>`, $chatOutput);
@@ -336,8 +313,8 @@ document.querySelector("#ai-chat").addEventListener("submit", async (e) => {
 
     // First check if we have a valid token
     const { token } = await fetch("https://llmfoundry.straive.com/token", {
-      credentials: "include"
-    }).then(res => res.json());
+      credentials: "include",
+    }).then((res) => res.json());
 
     if (!token) {
       // If no token, show login button
@@ -353,7 +330,7 @@ document.querySelector("#ai-chat").addEventListener("submit", async (e) => {
     const source = new SSE("https://llmfoundry.straive.com/openai/v1/chat/completions", {
       headers: {
         Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
       },
       payload: JSON.stringify({
         model: "gpt-4o-mini",
@@ -374,19 +351,21 @@ document.querySelector("#ai-chat").addEventListener("submit", async (e) => {
           table.classList.add("table", "table-sm", "table-striped");
           table.querySelectorAll("tbody tr").forEach((tr) => {
             const demos = tr.querySelector("td:first-child").textContent.split(/,\s*/);
-            tr.querySelector("td:first-child").innerHTML = demos.map((demoName) => {
-              // Find the demo index by matching the project name
-              const demoIndex = originalData.findIndex(demo => demo.Project === demoName.trim());
-              if (demoIndex !== -1) {
-                return `<a href="#" class="demo-link" data-demo-id="${demoIndex}">${demoName.trim()}</a>`;
-              }
-              return demoName;
-            }).join(", ");
+            tr.querySelector("td:first-child").innerHTML = demos
+              .map((demoName) => {
+                // Find the demo index by matching the project name
+                const demoIndex = originalData.findIndex((demo) => demo.Project === demoName.trim());
+                if (demoIndex !== -1) {
+                  return `<a href="#" class="demo-link" data-demo-id="${demoIndex}">${demoName.trim()}</a>`;
+                }
+                return demoName;
+              })
+              .join(", ");
           });
         });
 
         // Add click event listener for demo links
-        $chatOutput.querySelectorAll(".demo-link").forEach(link => {
+        $chatOutput.querySelectorAll(".demo-link").forEach((link) => {
           link.addEventListener("click", (e) => {
             e.preventDefault();
             selectedId = e.target.dataset.demoId;
@@ -400,18 +379,17 @@ document.querySelector("#ai-chat").addEventListener("submit", async (e) => {
       render(output ? html`${unsafeHTML(marked.parse(output))}` : loading, $chatOutput);
     });
 
-      source.addEventListener("error", function(e) {
-        render(html`<div class="alert alert-danger">Error: ${e.data || 'Failed to connect to LLM service'}</div>`, $chatOutput);
-      });
+    source.addEventListener("error", function (e) {
+      render(
+        html`<div class="alert alert-danger">Error: ${e.data || "Failed to connect to LLM service"}</div>`,
+        $chatOutput
+      );
+    });
 
-      source.stream();
-
+    source.stream();
   } catch (error) {
-    console.error('Error:', error);
-    render(
-      html`<div class="alert alert-danger">Error: ${error.message || 'Something went wrong'}</div>`,
-      $chatOutput
-    );
+    console.error("Error:", error);
+    render(html`<div class="alert alert-danger">Error: ${error.message || "Something went wrong"}</div>`, $chatOutput);
   }
 });
 
@@ -427,17 +405,16 @@ function redraw(data) {
   let filtered = data;
   for (const [key, values] of Object.entries(activeFilters)) {
     filtered = filtered.filter((demo) => {
-      if (key === 'Type') {
-        return values.includes(demo[key]);
-      }
+      if (key === "Type") return values.includes(demo[key]);
       return values.some((value) => demo[key] && demo[key].includes(value));
     });
   }
 
   const privateDemos = filtered.filter((d) => d.Private).length;
-  const isHidingPrivate = document.body.classList.contains('hide-private');
+  const isHidingPrivate = document.body.classList.contains("hide-private");
 
-  document.querySelector("#clear-filter").classList.toggle("d-none", Object.keys(activeFilters).length === 0)
+  document.querySelector("#clear-filter").classList.toggle("d-none", Object.keys(activeFilters).length === 0);
+
   // Draw sidebar with facet filters
   render(
     ["Type", "Industry", "Function", "Solution", "Tech"].map(
@@ -461,9 +438,7 @@ function redraw(data) {
                 .sort()
                 .filter((v) => v)
                 .map((item) => {
-                  const count = filtered.filter((d) =>
-                    d[key] && d[key].includes(item)
-                  ).length;
+                  const count = filtered.filter((d) => d[key] && d[key].includes(item)).length;
 
                   return html`<a
                     href="#"
@@ -485,7 +460,7 @@ function redraw(data) {
   );
 
   return render(
-    html`<div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 row-cols-xxl-4">
+    html`<div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 row-cols-xxl-4 gap-2">
       ${filtered.map(card)}
       ${privateDemos && isHidingPrivate
         ? html`<div class="col my-2">
@@ -538,5 +513,13 @@ document.querySelector("#clear-filter").addEventListener("click", (e) => {
   redraw(data);
 });
 
+async function fetchData() {
+  data = await fetch("demo.json").then((r) => r.json()); // Store in originalData
+  // Determine Type based on Link and Video properties
+  data = data.map((demo) => ({ ...demo, Type: determineType(demo) }));
+  originalData = [...data]; // Update originalData with Types
+
+  redraw(data);
+}
 
 fetchData();
